@@ -1,8 +1,8 @@
 {
-  "name": "offer-up-contract",
+  "name": "moola-cicada-contract",
   "version": "0.1.0",
   "private": true,
-  "description": "Offer Up Contract",
+  "description": "Moola Cicadas contract",
   "type": "module",
   "scripts": {
     "start:docker": "docker compose up -d",

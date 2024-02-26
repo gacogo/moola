@@ -12,7 +12,7 @@ import { E, passStyleOf } from '@endo/far';
 import { makeZoeKitForTest } from '@agoric/zoe/tools/setup-zoe.js';
 
 const myRequire = createRequire(import.meta.url);
-const contractPath = myRequire.resolve(`../src/offer-up.contract.js`);
+const contractPath = myRequire.resolve(`../src/moola.contract.js`);
 
 test('bundleSource() bundles the contract for use with zoe', async t => {
   const bundle = await bundleSource(contractPath);
@@ -20,7 +20,7 @@ test('bundleSource() bundles the contract for use with zoe', async t => {
   t.log(bundle.endoZipBase64Sha512);
   t.true(bundle.endoZipBase64.length > 10_000);
 
-  const { zoeService: zoe } = await makeZoeKitForTest();
+  const { zoeService: zoe } = makeZoeKitForTest();
   const installation = await E(zoe).install(bundle);
   t.log(installation);
 

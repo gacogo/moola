@@ -6,8 +6,7 @@ interface Purse {
   brand: unknown;
   brandPetname: string;
   currentAmount: {
-    brand: unknown;
-    value: bigint | CopyBag;
+    value: bigint| CopyBag;
   };
   displayInfo: {
     decimalPlaces: number;

@@ -103,8 +103,8 @@ print-key: /root/.agoric/user1.key
 	@agd keys show user1 -a --keyring-backend="test"
 	@echo
 
-SCRIPT=start-offer-up.js
-PERMIT=start-offer-up-permit.json
+SCRIPT=start-moola-cicada.js
+PERMIT=start-moola-cicada-permit.json
 start-contract: $(SCRIPT) $(PERMIT) install-bundles
 	scripts/propose-start-contract.sh
 
