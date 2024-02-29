@@ -1,6 +1,8 @@
 // @ts-check
+// import { AmountMath } from '@agoric/ertp';
 import { E } from '@endo/far';
 import { makeMarshal } from '@endo/marshal';
+// import { M } from '@endo/patterns';
 
 console.warn('start proposal module evaluating');
 export const contractName = 'MoolaCicada';
@@ -22,20 +24,34 @@ const makeBoardAuxNode = async (chainStorage, boardId) => {
   return E(boardAux).makeChildNode(boardId);
 };
 
+// testing I'll remove allegedname and see what happens. Will it appear on board? Lets see
+
 const publishBrandInfo = async (chainStorage, board, brand) => {
   const [id, displayInfo, allegedName] = await Promise.all([
     E(board).getId(brand),
     E(brand).getDisplayInfo(),
     E(brand).getAllegedName(),
   ]);
-  
+  console.error(
+    'we got publishBrandInfo: id:',
+    id,
+    'displayInfo:',
+    displayInfo,
+    'allegedName:',
+    allegedName,
+  );
+
   const node = makeBoardAuxNode(chainStorage, id);
   // const moolaName = marshalData.toCapData(harden({ allegedName }));
   const aux = marshalData.toCapData(harden({ allegedName, displayInfo }));
   await E(node).setValue(JSON.stringify(aux));
+  // await E(node).setValue(JSON.stringify(moolaName));
 };
 console.warn('finished publishing brand info');
-/*
+
+
+
+/**
  * Core eval script to start contract
  *
  * @param {BootstrapPowers} permittedPowers
@@ -62,10 +78,8 @@ export const startMoolaCicadaContract = async permittedPowers => {
 
   const installation = await moolaInstallationP;
 
-  
-
   const terms = harden({});
-  const issuerKeywordRecord = harden({});
+const issuerKeywordRecord = harden({});
   const { instance } = await E(startUpgradable)({
     installation,
     issuerKeywordRecord,
@@ -73,7 +87,8 @@ export const startMoolaCicadaContract = async permittedPowers => {
     terms,
   });
 
-
+  // I think I should get Keyword Record from instance instead of trying to fix  it here. Why do we even do this?
+  console.warn('terms are deex:', await E(zoe).getTerms(instance));
   const {
     brands: { [MOOLA_BRAND]: brand },
     issuers: { [MOOLA_BRAND]: issuer },

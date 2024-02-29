@@ -1,5 +1,3 @@
-/* global harden */
-
 import { useEffect } from 'react';
 
 import './App.css';
@@ -13,12 +11,9 @@ import {
   suggestChain,
 } from '@agoric/web-components';
 import { subscribeLatest } from '@agoric/notifier';
-import { makeCopyBag } from '@agoric/store';
 import { Logos } from './components/Logos';
 import { Inventory } from './components/Inventory';
-import { Trade } from './components/Trade';
-
-const { entries, fromEntries } = Object;
+import Mint from './components/Mint';
 
 type Wallet = Awaited<ReturnType<typeof makeAgoricWalletConnection>>;
 
@@ -32,7 +27,7 @@ const watcher = makeAgoricChainStorageWatcher(ENDPOINTS.API, 'agoriclocal');
 interface AppState {
   wallet?: Wallet;
   offerUpInstance?: unknown;
-  brands?: Record<string, unknown>;
+  brands?: Array<[string, unknown]>;
   purses?: Array<Purse>;
 }
 
@@ -54,8 +49,9 @@ const setup = async () => {
   watcher.watchLatest<Array<[string, unknown]>>(
     [Kind.Data, 'published.agoricNames.brand'],
     brands => {
+      console.log('Got brands', brands);
       useAppStore.setState({
-        brands: fromEntries(brands),
+        brands,
       });
     },
   );
@@ -73,18 +69,18 @@ const connectWallet = async () => {
 };
 
 const makeOffer = (wantValue: bigint) => {
-  console.log('makeOffer', wantValue);
   const { wallet, offerUpInstance, brands } = useAppStore.getState();
   if (!offerUpInstance) throw Error('no contract instance');
-  if (!(brands && brands.Moola)) throw Error('brands not available');
-  const want = harden({ Tokens: { brand: brands.Moola, value: wantValue } });
+  const moolabrand = brands?.find(([name]) => name === 'Moola')?.at(1);
+  if (!moolabrand) throw Error('no moola brand');
+  const want = { value: wantValue };
 
-  console.log(want);
   wallet?.makeOffer(
     {
       source: 'contract',
       instance: offerUpInstance,
       publicInvitationMaker: 'mintMoolaInvitation',
+      description: 'mint yourself moola',
     },
     { want },
     undefined,
@@ -111,6 +107,7 @@ function App() {
     wallet,
     purses,
   }));
+  const istPurse = purses?.find(p => p.brandPetname === 'IST');
   const moolaPurse = purses?.find(p => p.brandPetname === 'Moola');
 
   const tryConnectWallet = () => {
@@ -133,15 +130,12 @@ function App() {
       <h1>Items Listed on Offer Up</h1>
 
       <div className="card">
-        <Trade
-          makeOffer={makeOffer}
-          moolaPurse={moolaPurse as Purse}
-          walletConnected={!!wallet}
-        />
+        <Mint makeOffer={makeOffer} walletConnected={!!wallet} />
         <hr />
-        {wallet && moolaPurse ? (
+        {wallet && istPurse ? (
           <Inventory
             address={wallet.address}
+            istPurse={istPurse}
             moolaPurse={moolaPurse as Purse}
           />
         ) : (
