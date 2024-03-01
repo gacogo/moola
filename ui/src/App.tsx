@@ -21,12 +21,12 @@ const ENDPOINTS = {
   RPC: 'http://localhost:26657',
   API: 'http://localhost:1317',
 };
-
+// const Moola = 'Moola';
 const watcher = makeAgoricChainStorageWatcher(ENDPOINTS.API, 'agoriclocal');
 
 interface AppState {
   wallet?: Wallet;
-  offerUpInstance?: unknown;
+  moolaInstance?: unknown;
   brands?: Array<[string, unknown]>;
   purses?: Array<Purse>;
 }
@@ -39,8 +39,8 @@ const setup = async () => {
     instances => {
       console.log('got instances', instances);
       useAppStore.setState({
-        offerUpInstance: instances
-          .find(([name]) => name === 'MoolaCicada')!
+        moolaInstance: instances
+          .find(([name]) => name === 'moolaCicada')!
           .at(1),
       });
     },
@@ -69,20 +69,20 @@ const connectWallet = async () => {
 };
 
 const makeOffer = (wantValue: bigint) => {
-  const { wallet, offerUpInstance, brands } = useAppStore.getState();
-  if (!offerUpInstance) throw Error('no contract instance');
+  const { wallet, moolaInstance, brands } = useAppStore.getState();
+  if (!moolaInstance) throw Error('no contract instance');
   const moolabrand = brands?.find(([name]) => name === 'Moola')?.at(1);
   if (!moolabrand) throw Error('no moola brand');
-  const want = { value: wantValue };
-
+  const want = { Moola: { value: wantValue, brand: moolabrand } };
+  const give = {};
   wallet?.makeOffer(
     {
       source: 'contract',
-      instance: offerUpInstance,
+      instance: moolaInstance,
       publicInvitationMaker: 'mintMoolaInvitation',
       description: 'mint yourself moola',
     },
-    { want },
+    { want, give }, // TODO: fix type
     undefined,
     (update: { status: string; data?: unknown }) => {
       if (update.status === 'error') {
@@ -90,6 +90,9 @@ const makeOffer = (wantValue: bigint) => {
       }
       if (update.status === 'accepted') {
         alert('Offer accepted');
+      }
+      if (update.status === 'seated') {
+        alert('Oseated');
       }
       if (update.status === 'refunded') {
         alert('Offer rejected');

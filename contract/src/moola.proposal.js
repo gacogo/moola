@@ -5,7 +5,7 @@ import { makeMarshal } from '@endo/marshal';
 // import { M } from '@endo/patterns';
 
 console.warn('start proposal module evaluating');
-export const contractName = 'MoolaCicada';
+export const contractName = 'moolaCicada';
 
 const { Fail } = assert;
 
@@ -24,8 +24,6 @@ const makeBoardAuxNode = async (chainStorage, boardId) => {
   return E(boardAux).makeChildNode(boardId);
 };
 
-// testing I'll remove allegedname and see what happens. Will it appear on board? Lets see
-
 const publishBrandInfo = async (chainStorage, board, brand) => {
   const [id, displayInfo, allegedName] = await Promise.all([
     E(board).getId(brand),
@@ -42,14 +40,12 @@ const publishBrandInfo = async (chainStorage, board, brand) => {
   );
 
   const node = makeBoardAuxNode(chainStorage, id);
-  // const moolaName = marshalData.toCapData(harden({ allegedName }));
-  const aux = marshalData.toCapData(harden({ allegedName, displayInfo }));
+  const moolaName = marshalData.toCapData(harden({ allegedName }));
+  const aux = marshalData.toCapData(harden({ moolaName, displayInfo }));
   await E(node).setValue(JSON.stringify(aux));
-  // await E(node).setValue(JSON.stringify(moolaName));
+  await E(node).setValue(JSON.stringify(moolaName));
 };
 console.warn('finished publishing brand info');
-
-
 
 /**
  * Core eval script to start contract
@@ -61,25 +57,23 @@ export const startMoolaCicadaContract = async permittedPowers => {
     consume: { board, chainStorage, startUpgradable, zoe },
     brand: {
       // @ts-expect-error dynamic extension to promise space
-      produce: { [MOOLA_BRAND]: produceMoolaBrand },
+      produce: { Moola: produceMoolaBrand },
     },
     issuer: {
-      // @ts-expect-error dynamic extension to promise space
-      produce: { [MOOLA_BRAND]: produceMoolaIssuer },
+      produce: { Moola: produceMoolaIssuer },
     },
     installation: {
-      consume: { [contractName]: moolaInstallationP },
+      consume: { moolaCicada: moolaInstallationP },
     },
     instance: {
-      // @ts-expect-error dynamic extension to promise space
-      produce: { [contractName]: produceMoolaInstance },
+      produce: { moolaCicada: produceMoolaInstance },
     },
   } = permittedPowers;
 
   const installation = await moolaInstallationP;
 
   const terms = harden({});
-const issuerKeywordRecord = harden({});
+  const issuerKeywordRecord = harden({});
   const { instance } = await E(startUpgradable)({
     installation,
     issuerKeywordRecord,
@@ -90,8 +84,8 @@ const issuerKeywordRecord = harden({});
   // I think I should get Keyword Record from instance instead of trying to fix  it here. Why do we even do this?
   console.warn('terms are deex:', await E(zoe).getTerms(instance));
   const {
-    brands: { [MOOLA_BRAND]: brand },
-    issuers: { [MOOLA_BRAND]: issuer },
+    brands: { Moola: brand },
+    issuers: { Moola: issuer },
   } = await E(zoe).getTerms(instance);
 
   console.error('CoreEval script: share via agoricNames:', brand);
@@ -122,10 +116,10 @@ const moolaManifest = {
       startUpgradable: true, // to start contract and save adminFacet
       zoe: true, // to get contract terms, including issuer/brand
     },
-    installation: { consume: { [contractName]: true } },
-    issuer: { produce: { [MOOLA_BRAND]: true } },
-    brand: { produce: { [MOOLA_BRAND]: true } },
-    instance: { produce: { [contractName]: true } },
+    installation: { consume: { moolaCicada: true } },
+    issuer: { produce: {Moola: true } },
+    brand: { produce: { Moola: true } },
+    instance: { produce: { moolaCicada: true } },
   },
 };
 harden(moolaManifest);
@@ -134,7 +128,7 @@ export const getManifestForMoola = ({ restoreRef }, { moolaRef }) => {
   return harden({
     manifest: moolaManifest,
     installations: {
-      [contractName]: restoreRef(moolaRef),
+      moolaCicada: restoreRef(moolaRef),
     },
   });
 };

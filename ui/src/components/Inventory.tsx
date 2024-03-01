@@ -34,11 +34,7 @@ export const Inventory = ({
             <b>Moola:</b>
             {moolaPurse ? (
               <div style={{ marginTop: 0, textAlign: 'left' }}>
-                {stringifyAmountValue(
-                  moolaPurse.currentAmount.value,
-                  moolaPurse.displayInfo.assetKind,
-                  moolaPurse.displayInfo.decimalPlaces,
-                )}
+                {stringifyAmountValue(moolaPurse.currentAmount.value, 'nat', 6)}
               </div>
             ) : (
               stringifyAmountValue(0n, 'nat', 6)
