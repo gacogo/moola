@@ -23,7 +23,8 @@ export const start = async zcf => {
     // Shoiuld we have the keyword Record here for the tokens?
     // I suppose keyword record is used for namespace purposes?
     // Suppose we have many psuedonyms each identifying a particular mint request?
-    want: { Moola: M.any }, 
+    want: { Moola: M.any() },
+    give: M.any(),
     exit: M.any(),
   });
 

@@ -73,7 +73,7 @@ const makeOffer = (wantValue: bigint) => {
   if (!offerUpInstance) throw Error('no contract instance');
   const moolabrand = brands?.find(([name]) => name === 'Moola')?.at(1);
   if (!moolabrand) throw Error('no moola brand');
-  const want = { value: wantValue };
+  const want = harden({ Moola: { brand: moolabrand, value: wantValue } });
 
   wallet?.makeOffer(
     {
