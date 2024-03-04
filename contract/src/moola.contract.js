@@ -14,7 +14,7 @@ import { makeTracer } from './debug.js';
  * @typedef {{
  *   Moola: Amount;
  * }}moolaTerms
- **/
+ */
 
 export const meta = {
   customTermsShape: M.splitRecord({ Moola: AmountShape }),

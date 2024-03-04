@@ -1,4 +1,3 @@
-
 type MintProps = {
   makeOffer: (wantValue: bigint) => void;
   walletConnected: boolean;
