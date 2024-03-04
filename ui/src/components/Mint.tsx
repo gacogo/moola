@@ -11,11 +11,11 @@ const Mint = ({ makeOffer, walletConnected }: MintProps) => {
   return (
     <>
       <div className="trade">
-        <h3>You're mintint 100 Moola </h3>
+        <h3>You're mintint 1000 Moola </h3>
       </div>
       <div>
         {walletConnected && (
-          <button onClick={() => makeOffer(wantValue)}>Make an Offer</button>
+          <button onClick={() => makeOffer(wantValue)}>Mint Moola</button>
         )}
       </div>
     </>

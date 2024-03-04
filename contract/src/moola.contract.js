@@ -2,55 +2,61 @@
 
 import { Far } from '@endo/far';
 import { AssetKind } from '@agoric/ertp/src/amountMath.js';
-// import { AmountShape } from '@agoric/ertp/src/typeGuards.js';
+import { AmountShape } from '@agoric/ertp/src/typeGuards.js';
 import '@agoric/zoe/exported.js';
 import { M } from '@endo/patterns';
 import { makeTracer } from './debug.js';
 
+/**
+ * In addition to the standard `issuers` and `brands` terms,
+ * this contract is parameterized by the `Moola` Keyword.
+ *
+ * @typedef {{
+ *   Moola: Amount;
+ * }}moolaTerms
+ **/
+
+export const meta = {
+  customTermsShape: M.splitRecord({ Moola: AmountShape }),
+};
+// compatibility with an earlier contract metadata API
+export const customTermsShape = meta.customTermsShape;
+
 const trace = makeTracer('Moola', 'verbose');
-/*
- * @param {ZCF} zcf
+
+/**
+ * @param {ZCF<moolaTerms>} zcf
  */
 export const start = async zcf => {
   trace('start minting contract for moola');
 
-  const moolaMint = await zcf.makeZCFMint('Moola', AssetKind.NAT, harden({decimalPlaces: 6}));
+  const moolaMint = await zcf.makeZCFMint(
+    'Moola',
+    AssetKind.NAT,
+    harden({ decimalPlaces: 6 }),
+  );
 
-  const { issuer: moolaIssuer } = moolaMint.getIssuerRecord();
-
+  const { issuer: moolaIssuer, brand: moolabrand } =
+    moolaMint.getIssuerRecord();
 
   const proposalShape = harden({
-    // Shoiuld we have the keyword Record here for the tokens?
-    // I suppose keyword record is used for namespace purposes?
-    // Suppose we have many psuedonyms each identifying a particular mint request?
-    want: { Moola: M.any() },
+    want: { Moola: { brand: moolabrand, value: M.bigint() } },
     give: M.any(),
     exit: M.any(),
   });
 
- 
   /** @type {OfferHandler} */
   const mintMoolaHandler = clientSeat => {
-    trace('invitation redeemed?\n');
-
+    trace('invitation redeemed');
     const proposal = clientSeat.getProposal();
 
-    trace('This is the proposal deex', proposal);
-     
+    trace('This is the proposal: ', proposal);
+
     const { want } = proposal;
-    
-    const requestedAmount = want.value;
-    trace('This is the requested amount', requestedAmount);
-    
-    trace('This is the requested amount dikis', requestedAmount); 
-   
     const newMint = moolaMint.mintGains(want, clientSeat);
-    
-    
-    
     console.warn('This is the new mint', newMint);
     clientSeat.exit();
-    return `Here is your ${requestedAmount.value} Moolacicadas`;
+    return `Here is your Moolacicadas`;
   };
   const mintMoolaInvitation = () =>
     zcf.makeInvitation(
@@ -59,7 +65,6 @@ export const start = async zcf => {
       undefined,
       proposalShape,
     );
-
 
   const publicFacet = Far('Moola public facet', {
     getIssuer: () => moolaIssuer, // for purses and transfers
