@@ -33,7 +33,8 @@
     "@endo/netstring": "0.3.26",
     "@endo/stream-node": "0.2.26",
     "@babel/code-frame": "7.18.6",
-    "@babel/highlight": "7.22.5"
+    "@babel/highlight": "7.22.5",
+    "**/@agoric/xsnap": "0.14.3-dev-9f085d3.0"
   },
   "scripts": {
     "start:docker": "cd contract && docker compose up -d",
